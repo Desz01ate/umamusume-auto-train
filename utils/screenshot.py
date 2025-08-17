@@ -1,8 +1,13 @@
 from PIL import Image, ImageEnhance
 import mss
 import numpy as np
+from utils.resolution import get_current_resolution
 
-def enhanced_screenshot(region=(0, 0, 1920, 1080)) -> Image.Image:
+def enhanced_screenshot(region=None) -> Image.Image:
+  # Use full screen if no region specified
+  if region is None:
+    width, height = get_current_resolution()
+    region = (0, 0, width, height)
   with mss.mss() as sct:
     monitor = {
       "left": region[0],
@@ -21,7 +26,11 @@ def enhanced_screenshot(region=(0, 0, 1920, 1080)) -> Image.Image:
 
   return pil_img
 
-def capture_region(region=(0, 0, 1920, 1080)) -> Image.Image:
+def capture_region(region=None) -> Image.Image:
+  # Use full screen if no region specified
+  if region is None:
+    width, height = get_current_resolution()
+    region = (0, 0, width, height)
   with mss.mss() as sct:
     monitor = {
       "left": region[0],

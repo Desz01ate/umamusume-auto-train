@@ -10,6 +10,7 @@ from utils.constants import MOOD_LIST
 from core.recognizer import is_btn_active, match_template
 from utils.scenario import ura
 from core.skill import buy_skill
+from utils.resolution import scale_coordinate, scale_region
 
 def click(img: str, confidence: float = 0.8, minSearch:float = 2, click: int = 1, text: str = ""):
   if not state.is_bot_running:
@@ -121,7 +122,9 @@ def race_day():
   after_race()
 
 def race_select(prioritize_g1 = False):
-  pyautogui.moveTo(x=560, y=680)
+  # Scale the mouse position for race selection
+  scaled_x, scaled_y = scale_coordinate(560, 680)
+  pyautogui.moveTo(x=scaled_x, y=scaled_y)
 
   time.sleep(0.2)
 
@@ -132,7 +135,8 @@ def race_select(prioritize_g1 = False):
 
       if race_card:
         for x, y, w, h in race_card:
-          region = (x, y, 310, 90)
+          # Scale the region for G1 race detection
+          region = scale_region((x, y, 310, 90))
           match_aptitude = pyautogui.locateCenterOnScreen("assets/ui/match_track.png", confidence=0.8, minSearchTime=0.7, region=region)
           if match_aptitude:
             print("[INFO] G1 race found.")
