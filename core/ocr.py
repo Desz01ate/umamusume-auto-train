@@ -2,8 +2,10 @@ import easyocr
 from PIL import Image
 import numpy as np
 import re
+import torch
 
-reader = easyocr.Reader(["en"], gpu=False)
+cuda_available = torch.cuda.is_available()
+reader = easyocr.Reader(["en"], gpu=cuda_available)
 
 def extract_text(pil_img: Image.Image) -> str:
   img_np = np.array(pil_img)
