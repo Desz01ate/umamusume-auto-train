@@ -5,9 +5,12 @@ from utils.screenshot import enhanced_screenshot
 from core.ocr import extract_text
 from core.recognizer import match_template, is_btn_active
 import core.state as state
+from utils.resolution import scale_coordinate, scale_region
 
 def buy_skill():
-  pyautogui.moveTo(x=560, y=680)
+  # Scale the mouse position for skill selection
+  scaled_x, scaled_y = scale_coordinate(560, 680)
+  pyautogui.moveTo(x=scaled_x, y=scaled_y)
   found = False
 
   for i in range(10):
@@ -15,7 +18,8 @@ def buy_skill():
 
     if buy_skill_icon:
       for x, y, w, h in buy_skill_icon:
-        region = (x - 420, y - 40, w + 275, h + 5)
+        # Scale the region for skill text detection
+        region = scale_region((x - 420, y - 40, w + 275, h + 5))
         screenshot = enhanced_screenshot(region)
         text = extract_text(screenshot)
         if is_skill_match(text, state.SKILL_LIST):

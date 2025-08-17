@@ -8,6 +8,7 @@ import pyautogui
 from core.execute import career_lobby
 import core.state as state
 from server.main import app
+from utils.resolution import get_resolution_manager
 
 hotkey = "f1"
 
@@ -49,10 +50,22 @@ def hotkey_listener():
     time.sleep(0.5)
 
 def start_server():
-  res = pyautogui.resolution()
-  if res.width != 1920 or res.height != 1080:
-    print(f"[ERROR] Your resolution is {res.width} x {res.height}. Please set your screen to 1920 x 1080.")
-    return
+  # Initialize resolution manager and check support
+  res_manager = get_resolution_manager()
+  res_info = res_manager.get_resolution_info()
+  
+  print(f"[INFO] Detected resolution: {res_info['current_resolution'][0]}x{res_info['current_resolution'][1]}")
+  print(f"[INFO] Scale factors: {res_info['scale_factors'][0]:.2f}x, {res_info['scale_factors'][1]:.2f}y")
+  
+  if not res_info['is_supported']:
+    print(f"[WARNING] Your resolution {res_info['current_resolution'][0]}x{res_info['current_resolution'][1]} may not be fully supported.")
+    print(f"[WARNING] Aspect ratio: {res_info['aspect_ratio']:.2f} (16:9 = 1.78)")
+    print("[WARNING] The bot may not work correctly. Supported resolutions:")
+    from utils.resolution import SUPPORTED_RESOLUTIONS
+    for res in SUPPORTED_RESOLUTIONS:
+      print(f"  - {res[0]}x{res[1]}")
+    print("[INFO] Continuing anyway. Please report issues if the bot doesn't work properly.")
+  
   host = "127.0.0.1"
   port = 8000
   print(f"[INFO] Press '{hotkey}' to start/stop the bot.")

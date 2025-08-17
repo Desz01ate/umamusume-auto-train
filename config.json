@@ -27,5 +27,10 @@
       "Professor of Curvature",
       "Swinging Maestro"
     ]
+  },
+  "display": {
+    "auto_detect_resolution": true,
+    "target_resolution": [1920, 1080],
+    "debug_resolution": false
   }
 }

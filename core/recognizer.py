@@ -7,7 +7,10 @@ from utils.screenshot import capture_region
 def match_template(template_path, region=None, threshold=0.85):
   # Get screenshot
   if region:
-    screen = np.array(ImageGrab.grab(bbox=region))  # (left, top, right, bottom)
+    # Convert region from (x, y, width, height) to (left, top, right, bottom) for ImageGrab
+    x, y, width, height = region
+    bbox = (x, y, x + width, y + height)
+    screen = np.array(ImageGrab.grab(bbox=bbox))
   else:
     screen = np.array(ImageGrab.grab())
   screen = cv2.cvtColor(screen, cv2.COLOR_RGB2BGR)

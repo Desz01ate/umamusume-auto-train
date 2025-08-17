@@ -5,7 +5,8 @@ from utils.screenshot import capture_region, enhanced_screenshot
 from core.ocr import extract_text, extract_number
 from core.recognizer import match_template
 
-from utils.constants import SUPPORT_CARD_ICON_REGION, MOOD_REGION, TURN_REGION, FAILURE_REGION, YEAR_REGION, MOOD_LIST, CRITERIA_REGION, SKILL_PTS_REGION
+from utils.constants import MOOD_LIST, get_support_card_icon_region, get_mood_region, get_turn_region, get_failure_region, get_year_region, get_criteria_region, get_skill_pts_region
+from utils.resolution import scale_region
 
 is_bot_running = False
 
@@ -39,7 +40,8 @@ def reload_config():
 
 # Get Stat
 def stat_state():
-  stat_regions = {
+  # Base stat regions (relative to 1920x1080)
+  base_stat_regions = {
     "spd": (310, 723, 55, 20),
     "sta": (405, 723, 55, 20),
     "pwr": (500, 723, 55, 20),
@@ -48,8 +50,10 @@ def stat_state():
   }
 
   result = {}
-  for stat, region in stat_regions.items():
-    img = enhanced_screenshot(region)
+  for stat, base_region in base_stat_regions.items():
+    # Scale the region for current resolution
+    scaled_region = scale_region(base_region)
+    img = enhanced_screenshot(scaled_region)
     val = extract_number(img)
     result[stat] = val
   return result
@@ -68,14 +72,17 @@ def check_support_card(threshold=0.8):
   count_result = {}
 
   for key, icon_path in SUPPORT_ICONS.items():
-    matches = match_template(icon_path, SUPPORT_CARD_ICON_REGION, threshold)
+    # Get the dynamically scaled support card icon region
+    support_region = get_support_card_icon_region()
+    matches = match_template(icon_path, support_region, threshold)
     count_result[key] = len(matches)
 
   return count_result
 
 # Get failure chance (idk how to get energy value)
 def check_failure():
-  failure = enhanced_screenshot(FAILURE_REGION)
+  failure_region = get_failure_region()
+  failure = enhanced_screenshot(failure_region)
   failure_text = extract_text(failure).lower()
 
   if not failure_text.startswith("failure"):
@@ -102,7 +109,8 @@ def check_failure():
 
 # Check mood
 def check_mood():
-  mood = capture_region(MOOD_REGION)
+  mood_region = get_mood_region()
+  mood = capture_region(mood_region)
   mood_text = extract_text(mood).upper()
 
   for known_mood in MOOD_LIST:
@@ -114,7 +122,8 @@ def check_mood():
 
 # Check turn
 def check_turn():
-    turn = enhanced_screenshot(TURN_REGION)
+    turn_region = get_turn_region()
+    turn = enhanced_screenshot(turn_region)
     turn_text = extract_text(turn)
 
     if "Race Day" in turn_text:
@@ -138,17 +147,20 @@ def check_turn():
 
 # Check year
 def check_current_year():
-  year = enhanced_screenshot(YEAR_REGION)
+  year_region = get_year_region()
+  year = enhanced_screenshot(year_region)
   text = extract_text(year)
   return text
 
 # Check criteria
 def check_criteria():
-  img = enhanced_screenshot(CRITERIA_REGION)
+  criteria_region = get_criteria_region()
+  img = enhanced_screenshot(criteria_region)
   text = extract_text(img)
   return text
 
 def check_skill_pts():
-  img = enhanced_screenshot(SKILL_PTS_REGION)
+  skill_pts_region = get_skill_pts_region()
+  img = enhanced_screenshot(skill_pts_region)
   text = extract_number(img)
   return text
